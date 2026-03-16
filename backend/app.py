@@ -1,7 +1,7 @@
 import math
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.data import (
@@ -85,7 +85,10 @@ def roi(
 
 @app.get("/api/inventory")
 def inventory(org: str = "All Organizations"):
-    df = get_governance_data(org)
+    try:
+        df = get_governance_data(org)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     if df.empty:
         return {"tables": []}
 
@@ -115,7 +118,10 @@ def inventory(org: str = "All Organizations"):
 
 @app.get("/api/impact/tables")
 def impact_tables(org: str = "All Organizations"):
-    df = get_all_tables(org)
+    try:
+        df = get_all_tables(org)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     if df.empty:
         return []
     return sorted(df["name"].dropna().unique().tolist())
