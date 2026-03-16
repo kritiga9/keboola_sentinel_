@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 echo "=== Installing Python dependencies ==="
 cd /app
-pip install --no-cache-dir -r requirements.txt
+uv sync --no-dev
 
 echo "=== Installing frontend dependencies ==="
 cd /app/frontend
