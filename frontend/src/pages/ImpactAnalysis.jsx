@@ -198,8 +198,11 @@ export default function ImpactAnalysis({ selectedOrg, selectedStack }) {
   const [analysisLoading, setAnalysisLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const orgSelected = selectedOrg && selectedOrg !== 'All Organizations'
+
   // Load table list
   useEffect(() => {
+    if (!orgSelected) { setTables([]); setSelectedTable(''); setAnalysis(null); return }
     setTablesLoading(true)
     setSelectedTable('')
     setAnalysis(null)
@@ -207,7 +210,7 @@ export default function ImpactAnalysis({ selectedOrg, selectedStack }) {
       .then(t => { setTables(t); if (t.length > 0) setSelectedTable(t[0]) })
       .catch(e => setError(e.message))
       .finally(() => setTablesLoading(false))
-  }, [selectedOrg])
+  }, [selectedOrg, orgSelected])
 
   // Load analysis when table changes
   useEffect(() => {
@@ -238,9 +241,16 @@ export default function ImpactAnalysis({ selectedOrg, selectedStack }) {
         </p>
       </div>
 
-      {tablesLoading && <LoadingSpinner message="Building lineage index…" />}
+      {!orgSelected && (
+        <div className="card p-12 text-center text-slate-400">
+          <p className="text-lg font-medium text-slate-600">Select an organisation to load data</p>
+          <p className="text-sm mt-1">Choose a stack and organisation from the left sidebar.</p>
+        </div>
+      )}
 
-      {!tablesLoading && tables.length === 0 && (
+      {orgSelected && tablesLoading && <LoadingSpinner message="Building lineage index…" />}
+
+      {orgSelected && !tablesLoading && tables.length === 0 && (
         <div className="card p-12 text-center text-slate-400">
           <p className="text-base font-medium">No tables found</p>
           {selectedStack && selectedStack.includes('.keboola.cloud') ? (
@@ -253,7 +263,7 @@ export default function ImpactAnalysis({ selectedOrg, selectedStack }) {
         </div>
       )}
 
-      {!tablesLoading && tables.length > 0 && (
+      {orgSelected && !tablesLoading && tables.length > 0 && (
         <>
           {/* Table selector */}
           <div className="card p-5 mb-6">

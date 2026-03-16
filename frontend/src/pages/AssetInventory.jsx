@@ -28,14 +28,17 @@ export default function AssetInventory({ selectedOrg, selectedStack }) {
   const [healthFilter, setHealthFilter] = useState('All')
   const [sharedFilter, setSharedFilter] = useState('All')
 
+  const orgSelected = selectedOrg && selectedOrg !== 'All Organizations'
+
   useEffect(() => {
+    if (!orgSelected) { setData(null); setError(null); return }
     setLoading(true)
     setError(null)
     fetchInventory(selectedOrg)
       .then(setData)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
-  }, [selectedOrg])
+  }, [selectedOrg, orgSelected])
 
   const tables = data?.tables ?? []
 
@@ -67,15 +70,22 @@ export default function AssetInventory({ selectedOrg, selectedStack }) {
         </p>
       </div>
 
-      {loading && <LoadingSpinner message="Loading asset inventory…" />}
+      {!orgSelected && (
+        <div className="card p-12 text-center text-slate-400">
+          <p className="text-lg font-medium text-slate-600">Select an organisation to load data</p>
+          <p className="text-sm mt-1">Choose a stack and organisation from the left sidebar.</p>
+        </div>
+      )}
 
-      {error && (
+      {orgSelected && loading && <LoadingSpinner message="Loading asset inventory…" />}
+
+      {orgSelected && error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm mb-6">
           Failed to load: {error}
         </div>
       )}
 
-      {!loading && !error && data && tables.length === 0 && (
+      {orgSelected && !loading && !error && data && tables.length === 0 && (
         <div className="card p-12 text-center">
           <p className="text-base font-semibold text-slate-700 mb-2">No table telemetry data available</p>
           <p className="text-sm text-slate-500 max-w-md mx-auto">
@@ -86,7 +96,7 @@ export default function AssetInventory({ selectedOrg, selectedStack }) {
         </div>
       )}
 
-      {!loading && !error && data && tables.length > 0 && (
+      {orgSelected && !loading && !error && data && tables.length > 0 && (
         <>
           {/* KPIs */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

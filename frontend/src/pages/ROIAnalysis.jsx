@@ -43,13 +43,16 @@ const CustomTooltip = ({ active, payload, label, costPerPPU }) => {
 
 export default function ROIAnalysis({ selectedOrg }) {
   const [startDate, setStartDate] = useState(daysAgo(90))
-  const [endDate, setEndDate] = useState(today)
+  const [endDate, setEndDate] = useState(today())
   const [costPerPPU, setCostPerPPU] = useState(0.50)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const orgSelected = selectedOrg && selectedOrg !== 'All Organizations'
+
   const load = useCallback(async () => {
+    if (!orgSelected) return
     setLoading(true)
     setError(null)
     try {
@@ -60,9 +63,12 @@ export default function ROIAnalysis({ selectedOrg }) {
     } finally {
       setLoading(false)
     }
-  }, [selectedOrg, startDate, endDate])
+  }, [selectedOrg, startDate, endDate, orgSelected])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    if (!orgSelected) { setData(null); return }
+    load()
+  }, [load, orgSelected])
 
   const flows = data?.flows ?? []
   const hasData = flows.length > 0 && flows.reduce((s, f) => s + f.total_credits, 0) > 0
@@ -147,8 +153,16 @@ export default function ROIAnalysis({ selectedOrg }) {
         </div>
       </div>
 
+      {/* Org not selected */}
+      {!orgSelected && (
+        <div className="card p-12 text-center text-slate-400">
+          <p className="text-lg font-medium text-slate-600">Select an organisation to load data</p>
+          <p className="text-sm mt-1">Choose a stack and organisation from the left sidebar.</p>
+        </div>
+      )}
+
       {/* Error */}
-      {error && (
+      {orgSelected && error && (
         <div className="mb-6 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
           <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div>
@@ -158,9 +172,9 @@ export default function ROIAnalysis({ selectedOrg }) {
         </div>
       )}
 
-      {loading && <LoadingSpinner message="Querying flow cost data…" />}
+      {orgSelected && loading && <LoadingSpinner message="Querying flow cost data…" />}
 
-      {!loading && !error && !hasData && data && (
+      {orgSelected && !loading && !error && !hasData && data && (
         <div className="card p-12 text-center text-slate-400">
           <p className="text-lg font-medium">No flow cost data found</p>
           <p className="text-sm mt-1">Try adjusting the date range or organization filter.</p>
