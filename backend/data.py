@@ -24,7 +24,7 @@ def _cached(key: str, fn, *args, **kwargs):
 
 
 # ── Table FQNs ────────────────────────────────────────────────────────────────
-TABLES_FQN = '"KBC_USE4_37"."out.c-kbc_public_telemetry"."kbc_table"'
+TABLES_FQN = '"KBC_USE4_37"."in.c-in_sh_kbc_billing"."kbc_table"'
 PROJECTS_FQN = '"KBC_USE4_37"."out.c-kbc_public_telemetry"."kbc_project"'
 ORGANIZATIONS_FQN = '"KBC_USE4_37"."out.c-kbc_public_telemetry"."kbc_organization"'
 CONFIGS_FQN = '"KBC_USE4_37"."out.c-kbc_billing"."kbc_component_configuration"'
