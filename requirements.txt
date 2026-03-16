@@ -1,0 +1,5 @@
+graphviz
+httpx
+pandas
+plotly
+streamlit
